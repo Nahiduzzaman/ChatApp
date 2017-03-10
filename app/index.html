@@ -1,6 +1,6 @@
 <!doctype html>
 <html>
-  <head>
+<head>
     <title>Socket.IO chat</title>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,27 +11,39 @@
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.2/angular.min.js"></script>
-  </head>
-  <body ng-app="chatApp" ng-controller="chatCtrl">
-    {{firstName}}
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.2/angular.min.js"></script>
+</head>
+<body ng-app="chatApp" ng-controller="chatCtrl as vm">
+    <ul id="messages">
+      <li ng-repeat="msg in vm.conversation track by $index">{{msg}}</li>
+  </ul>
+  <form>
+      <input id="m" autocomplete="off" ng-model="vm.message">
+      <button ng-click="vm.send(vm.message)">Send</button>
+  </form>
 
-    <script src="/socket.io/socket.io.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- <script src="socket/socket.js"></script> -->
+
     <script>
-      var socket = io();
+        var app = angular.module("chatApp", []);
+        app.controller("chatCtrl", function($scope) {
+            vm = this
+            vm.conversation = [];
+            var socket = io();
+            vm.send = function(message){
+                console.log(message);
+                socket.emit('chat message',message);
+            }
+
+            socket.on('chat message', function(msg){
+                $scope.$apply(function(){    //socket.on is not belongs to angular family , thats why have to force binding using $apply
+                  vm.conversation.push(msg);
+              })
+            });
+
+        });
     </script>
-    
-    <script>
-      var app = angular.module("chatApp", []);
-      app.controller("chatCtrl", function($scope) {
-          $scope.firstName = "John Doe";
-          $scope.lastName = "Doe";
-      });
-    </script>
-  </body>
+</body>
 </html>
