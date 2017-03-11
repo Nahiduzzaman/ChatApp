@@ -15,35 +15,23 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.2/angular.min.js"></script>
 </head>
 <body ng-app="chatApp" ng-controller="chatCtrl as vm">
+    <div>
+      <button ng-click="vm.add_site_Manager()">Add site manager</button>
+      <button ng-click="vm.add_engineer()">Add engineer</button>
+    </div>
+    <div>
     <ul id="messages">
-      <li ng-repeat="msg in vm.conversation track by $index">{{msg}}</li>
-  </ul>
-  <form>
-      <input id="m" autocomplete="off" ng-model="vm.message">
-      <button ng-click="vm.send(vm.message)">Send</button>
-  </form>
+      <li ng-repeat="item in vm.conversation track by $index">{{item.user}}:{{item.message}}</li>
+    </ul>
+    <span>{{vm.typemsg}}</span>
+    <form>
+      <input type="hidden" ng-model="vm.from">
+      <input id="m" autocomplete="off" ng-model="vm.message" ng-keyup="vm.notifyTyping();">
+      <button ng-click="vm.send(vm.from,vm.message)">Send</button>
+    </form>
+    </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <!-- <script src="socket/socket.js"></script> -->
-
-    <script>
-        var app = angular.module("chatApp", []);
-        app.controller("chatCtrl", function($scope) {
-            vm = this
-            vm.conversation = [];
-            var socket = io();
-            vm.send = function(message){
-                console.log(message);
-                socket.emit('chat message',message);
-            }
-
-            socket.on('chat message', function(msg){
-                $scope.$apply(function(){    //socket.on is not belongs to angular family , thats why have to force binding using $apply
-                  vm.conversation.push(msg);
-              })
-            });
-
-        });
-    </script>
+  <script src="js/chat.controller.js"></script>
 </body>
 </html>
